@@ -1,0 +1,69 @@
+//echoserver.cpp
+#include "EchoServer.h"
+
+EchoServer::EchoServer(quint16 port, bool debug, QObject *parent) :
+    QObject(parent), m_pWebSocketServer(new QWebSocketServer(QStringLiteral("Echo Server"), QWebSocketServer::NonSecureMode, this)), m_debug(debug)
+{
+    if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
+        if (m_debug)
+        {
+            qDebug() << "Сервер запущен! Серверный порт:" << port;
+        }
+        connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this, &EchoServer::onNewConnection);
+        connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &EchoServer::serverClosed);
+    }
+}
+
+EchoServer::~EchoServer() {
+    m_pWebSocketServer->close();
+    qDeleteAll(m_clients);
+}
+
+void EchoServer::onNewConnection() {
+    QWebSocket *pSocket = m_pWebSocketServer->nextPendingConnection();
+
+    if (m_debug)
+        qDebug() << "\nНовое подключение от порта:" << pSocket->peerPort();
+
+    connect(pSocket, &QWebSocket::textMessageReceived, this, &EchoServer::processTextMessage);
+    connect(pSocket, &QWebSocket::binaryMessageReceived, this, &EchoServer::processBinaryMessage);
+    connect(pSocket, &QWebSocket::disconnected, this, &EchoServer::socketDisconnected);
+
+    m_clients << pSocket;
+}
+
+void EchoServer::processTextMessage(QString message) {
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    if (m_debug)
+        qDebug() << "Сообщение получено:" << message;
+    if (pClient) {
+        pClient->sendTextMessage(message);
+    }
+}
+
+void EchoServer::processBinaryMessage(QByteArray message) {
+    QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
+    if (m_debug)
+        qDebug() << "Бинарное сообщение получено:" << message;
+    if (pClient) {
+        pClient->sendBinaryMessage(message);
+    }
+}
+
+void EchoServer::socketDisconnected() {
+    QWebSocket *pClient = qobject_cast <QWebSocket*> (sender());
+    if (m_debug) // (m_debug && pClient)
+    {
+        qDebug() << "\nКлиент с портом" << pClient->peerPort() << "отключился";
+    }
+    if (pClient)
+    {
+        m_clients.removeAll(pClient);
+        pClient->deleteLater();
+    }
+}
+
+void EchoServer::serverClosed() {
+    if (m_debug)
+        qDebug() << "Сервер закрыт";
+}
