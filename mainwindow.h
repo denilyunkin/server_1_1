@@ -27,8 +27,11 @@ public:
 private:
     Ui::MainWindow *ui;
 private slots:
+    //void processJsonTree(const QJsonObject &json);
 
 public slots:
+    void processJsonMessage(const QJsonObject &json);
+    void processNoJsonMessage(const QString &message);
 
 };
 #endif // MAINWINDOW_H

@@ -10,6 +10,14 @@
 #include <QHostAddress>
 #include <QDebug>
 
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QDir>
+#include <QFileInfo>
+#include <QFileSystemModel>
+#include <QStandardItemModel>
+
 class EchoServer : public QObject
 {
     Q_OBJECT
@@ -22,6 +30,7 @@ private slots:
     void onNewConnection();
     void processTextMessage(QString message);
     void processBinaryMessage(QByteArray message);
+    //void processJsonTree(const QJsonObject &json);
     void socketDisconnected();
     void serverClosed();
 
@@ -29,6 +38,13 @@ private:
     QWebSocketServer *m_pWebSocketServer;
     QList <QWebSocket*> m_clients;
     bool m_debug;
+
+    QFileSystemModel *fileSystemModel = nullptr;
+    QStandardItemModel *jsonModel = nullptr;
+
+signals:
+    void jsonReceived(const QJsonObject &json);
+    void nojsonReceived(const QString &message);
 };
 
 #endif // ECHOSERVER_H
