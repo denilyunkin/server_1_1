@@ -45,6 +45,8 @@ private:
 signals:
     void jsonReceived(const QJsonObject &json);
     void nojsonReceived(const QString &message);
+    void logMessage(const QString &msg);
+
 };
 
 #endif // ECHOSERVER_H

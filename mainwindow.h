@@ -27,8 +27,8 @@ public:
 private:
     Ui::MainWindow *ui;
 private slots:
-    //void processJsonTree(const QJsonObject &json);
-
+    void on_pushButton_toggled(bool checked);
+    void onTreeViewClicked(const QModelIndex &index);
 public slots:
     void processJsonMessage(const QJsonObject &json);
     void processNoJsonMessage(const QString &message);

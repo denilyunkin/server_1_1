@@ -12,6 +12,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(&server, &EchoServer::jsonReceived, &w, &MainWindow::processJsonMessage);
     QObject::connect(&server, &EchoServer::nojsonReceived, &w, &MainWindow::processNoJsonMessage);
+    QObject::connect(&server, &EchoServer::logMessage,&w, &MainWindow::processNoJsonMessage);
+
+
 
     w.show();
     return a.exec();

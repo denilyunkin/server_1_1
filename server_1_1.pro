@@ -10,14 +10,17 @@ CONFIG += c++17
 
 SOURCES += \
     echoserver.cpp \
+    form.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     echoserver.h \
+    form.h \
     mainwindow.h
 
 FORMS += \
+    form.ui \
     mainwindow.ui
 
 # Default rules for deployment.

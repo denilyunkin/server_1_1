@@ -7,7 +7,10 @@ EchoServer::EchoServer(quint16 port, bool debug, QObject *parent) :
     if (m_pWebSocketServer->listen(QHostAddress::Any, port)) {
         if (m_debug)
         {
-            qDebug() << "Сервер запущен! Серверный порт:" << port;
+            qDebug() << "Сервер запущен!";
+            emit logMessage("Сервер запущен!");
+            qDebug() << "Серверный порт:" << port;
+            emit logMessage(QString("Серверный порт: %1").arg(port));
         }
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this, &EchoServer::onNewConnection);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &EchoServer::serverClosed);
@@ -24,6 +27,7 @@ void EchoServer::onNewConnection() {
 
     if (m_debug)
         qDebug() << "\nНовое подключение от порта:" << pSocket->peerPort();
+        emit logMessage(QString("Новое подключение от порта: %1").arg(pSocket->peerPort()));
 
     connect(pSocket, &QWebSocket::textMessageReceived, this, &EchoServer::processTextMessage);
     connect(pSocket, &QWebSocket::binaryMessageReceived, this, &EchoServer::processBinaryMessage);
@@ -35,7 +39,8 @@ void EchoServer::onNewConnection() {
 void EchoServer::processTextMessage(QString message) {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (m_debug)
-        qDebug() << "Сообщение получено:" << message;
+        qDebug() << "Данные обновлены.";
+        emit logMessage("Данные обновлены.");
 
     if (pClient) {
         //pClient->sendTextMessage(message);
@@ -73,6 +78,7 @@ void EchoServer::socketDisconnected() {
     if (m_debug) // (m_debug && pClient)
     {
         qDebug() << "\nКлиент с портом" << pClient->peerPort() << "отключился";
+        emit logMessage(QString("Клиент с портом %1 отключился").arg(pClient->peerPort()));
     }
     if (pClient)
     {
@@ -84,4 +90,5 @@ void EchoServer::socketDisconnected() {
 void EchoServer::serverClosed() {
     if (m_debug)
         qDebug() << "Сервер закрыт";
+        emit logMessage("Сервер закрыт");
 }
